@@ -1,4 +1,4 @@
-import type { Repo, AnalysisType, Analysis } from './types';
+import type { Repo, AnalysisType, Analysis, ProjectSummary, BookSummary, ChapterDetail } from './types';
 
 async function get<T>(url: string): Promise<T> {
   const res = await fetch(url);
@@ -59,4 +59,78 @@ export function fetchAnalyses(
   repoId: string,
 ): Promise<{ analyses: Analysis[]; total: number }> {
   return get(`${apiUrl}/analyses?repo_id=${encodeURIComponent(repoId)}&limit=100`);
+}
+
+export function fetchProjectSummary(
+  apiUrl: string,
+  repoId: string,
+  commit?: string | null,
+): Promise<ProjectSummary> {
+  const q = commit ? `?commit=${encodeURIComponent(commit)}` : '';
+  return get(`${apiUrl}/repos/${encodeURIComponent(repoId)}${q}`);
+}
+
+export function fetchBookSummary(
+  apiUrl: string,
+  repoId: string,
+  book: string,
+  commit?: string | null,
+): Promise<BookSummary> {
+  const q = commit ? `?commit=${encodeURIComponent(commit)}` : '';
+  return get(`${apiUrl}/repos/${encodeURIComponent(repoId)}/books/${encodeURIComponent(book)}${q}`);
+}
+
+export function fetchChapterDetail(
+  apiUrl: string,
+  repoId: string,
+  book: string,
+  chapter: number,
+  commit?: string | null,
+): Promise<ChapterDetail> {
+  const q = commit ? `?commit=${encodeURIComponent(commit)}` : '';
+  return get(
+    `${apiUrl}/repos/${encodeURIComponent(repoId)}/chapters/${encodeURIComponent(book)}/${chapter}${q}`,
+  );
+}
+
+// ── Gitea USFM helpers ────────────────────────────────────────────────────────
+
+interface GiteaContentEntry {
+  name: string;
+  path: string;
+  type: 'file' | 'dir' | 'symlink';
+  download_url: string | null;
+}
+
+/**
+ * List the root directory of a Gitea repo at a given commit SHA.
+ * Returns null on any failure.
+ */
+export async function fetchGiteaRootContents(
+  apiBase: string,
+  owner: string,
+  repo: string,
+  sha: string,
+): Promise<GiteaContentEntry[] | null> {
+  try {
+    const res = await fetch(`${apiBase}/repos/${owner}/${repo}/contents/?ref=${sha}`);
+    if (!res.ok) return null;
+    return (await res.json()) as GiteaContentEntry[];
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Fetch the raw text of a file by its absolute URL.
+ * Returns null on any failure.
+ */
+export async function fetchRawFile(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.text();
+  } catch {
+    return null;
+  }
 }

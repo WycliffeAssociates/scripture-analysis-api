@@ -1,0 +1,9 @@
+packages:
+  - 'components'
+  - 'viewer'
+  - 'api'
+  - 'cli'
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true

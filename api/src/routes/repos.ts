@@ -58,7 +58,7 @@ export async function getProjectSummary(c: Context<{ Bindings: Env }>) {
       SELECT i.book, i.type, i.version,
              a.triggered_at, a.analysis_id, a.commit_sha,
              ROW_NUMBER() OVER (
-               PARTITION BY i.book, i.type
+               PARTITION BY i.book, i.type, i.anchor
                ORDER BY a.triggered_at DESC
              ) AS rn
       FROM analysis_item i
@@ -124,7 +124,7 @@ export async function getBookSummary(c: Context<{ Bindings: Env }>) {
       SELECT i.chapter, i.type,
              a.triggered_at, a.analysis_id, a.commit_sha,
              ROW_NUMBER() OVER (
-               PARTITION BY i.chapter, i.type
+               PARTITION BY i.chapter, i.type, i.anchor
                ORDER BY a.triggered_at DESC
              ) AS rn
       FROM analysis_item i
@@ -196,7 +196,7 @@ export async function getChapterDetail(c: Context<{ Bindings: Env }>) {
       SELECT i.*,
              a.triggered_at, a.commit_sha,
              ROW_NUMBER() OVER (
-               PARTITION BY i.type
+               PARTITION BY i.type, i.anchor
                ORDER BY a.triggered_at DESC
              ) AS rn
       FROM analysis_item i
