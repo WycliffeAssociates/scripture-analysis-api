@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scripture-analysis/interpresure_suggestions/1.0",
+  "title": "InterPresure Suggestions",
+  "description": "Strengths, weaknesses, and suggestions for a translation scope as produced by the InterPresure pragmatic annotation system.",
+  "type": "object",
+  "required": ["type", "version", "strengths", "weaknesses", "suggestions"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "interpresure_suggestions",
+      "description": "Observation type identifier."
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Schema version."
+    },
+    "strengths": {
+      "type": "array",
+      "description": "What the translation does well within this scope. Each item is a bullet-pointed markdown string.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "weaknesses": {
+      "type": "array",
+      "description": "Areas where the translation falls short within this scope. Each item is a bullet-pointed markdown string.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "suggestions": {
+      "type": "array",
+      "description": "Concrete improvement suggestions for this scope. Each item is a bullet-pointed markdown string.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

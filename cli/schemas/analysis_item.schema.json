@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scripture-analysis/analysis_item",
+  "title": "AnalysisItem",
+  "description": "A single analysis item to be uploaded. Items are grouped by (book, chapter) and submitted to the corresponding scope endpoint.",
+  "type": "object",
+  "required": ["anchor_level", "type", "version", "observation"],
+  "additionalProperties": false,
+  "properties": {
+    "book": {
+      "type": ["string", "null"],
+      "pattern": "^[A-Z0-9]{3}$",
+      "description": "3-letter USFM/U23003 book code (e.g. MAT, GEN, REV). Null or omitted for repo-level items."
+    },
+    "chapter": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "description": "Chapter number. Null or omitted for book-level or repo-level items."
+    },
+    "anchor": {
+      "type": ["string", "null"],
+      "description": "U23003 scripture reference string (e.g. 'MAT 2:11', 'MAT 2:1-3'). Null for scope-level items."
+    },
+    "anchor_level": {
+      "type": "string",
+      "enum": ["repo", "book", "chapter", "verse", "word", "character", "non_verse"],
+      "description": "Granularity of the anchor."
+    },
+    "type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Observation type identifier (e.g. 'question'). Must be registered in the analysis_type registry."
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Version of the observation type schema (e.g. '1.0')."
+    },
+    "observation": {
+      "type": "object",
+      "description": "Self-describing observation data. Must include 'type' and 'version' fields matching the envelope. Shape defined by the registered analysis_type schema."
+    }
+  }
+}

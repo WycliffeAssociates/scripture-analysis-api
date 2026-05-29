@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scripture-analysis/repo",
+  "title": "Repo",
+  "description": "Identifies and creates a translation project repo. Uploaded once per run directory.",
+  "type": "object",
+  "required": ["repo_id", "name", "git_url"],
+  "additionalProperties": false,
+  "properties": {
+    "repo_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable unique identifier for this repo. Used as the primary key — choose something permanent like a slug or UUID."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable display name for the project."
+    },
+    "git_url": {
+      "type": "string",
+      "minLength": 1,
+      "description": "URL of the git repository (SSH or HTTPS)."
+    }
+  }
+}

@@ -1,0 +1,19 @@
+name = "scripture-analysis-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "scripture-analysis"
+# Replace with your actual database_id after running: wrangler d1 create scripture-analysis
+database_id = "replace-with-your-database-id"
+migrations_dir = "migrations"
+
+[vars]
+ENVIRONMENT = "development"
+
+# API_KEY is a secret — set it with:
+#   wrangler secret put API_KEY
+# For local dev, add to .dev.vars:
+#   API_KEY=your-local-key

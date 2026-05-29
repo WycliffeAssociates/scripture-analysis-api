@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scripture-analysis/run",
+  "title": "Analysis",
+  "description": "Metadata for an analysis run. The CLI creates the analysis on the API and uploads analysis items into it.",
+  "type": "object",
+  "required": ["commit_sha"],
+  "additionalProperties": false,
+  "properties": {
+    "commit_sha": {
+      "type": "string",
+      "minLength": 7,
+      "description": "The git commit SHA that was analysed. Full SHA recommended; 7-character short SHA accepted."
+    }
+  }
+}
