@@ -37,9 +37,30 @@ const md = {
 
 // ── Observation renderers ─────────────────────────────────────────────────────
 
+function ScoreBar({ score }) {
+  const pct = Math.min(Math.max((score / 10) * 100, 0), 100);
+  const color = score >= 8 ? 'bg-green-500' : score >= 6 ? 'bg-yellow-400' : score >= 4 ? 'bg-orange-400' : 'bg-red-500';
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className={`h-full ${color} rounded-full`} style={{ width: `${pct}%` }} />
+      </div>
+      <span className="text-xs font-bold text-gray-700 w-6 text-right">{score}</span>
+    </div>
+  );
+}
+
 function InterPresureSuggestions({ obs }) {
+  const [showDetails, setShowDetails] = useState(false);
+
+  // v2.0 detail fields — only present if non-empty / defined
+  const hasDetails = obs.reasoning || obs.score != null || obs.confidence != null
+    || obs.cross_references?.length > 0 || obs.verses_to_review?.length > 0
+    || obs.resources?.length > 0;
+
   return (
     <div className="space-y-4">
+      {/* ── Primary: strengths / weaknesses / suggestions ── */}
       {obs.strengths?.length > 0 && (
         <section>
           <h4 className="text-xs font-bold uppercase tracking-wider text-green-700 mb-1">Strengths</h4>
@@ -47,7 +68,7 @@ function InterPresureSuggestions({ obs }) {
             {obs.strengths.map((s, i) => (
               <li key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
                 <span className="text-green-500 mt-0.5 flex-shrink-0">✓</span>
-                <ReactMarkdown components={md}>{s}</ReactMarkdown>
+                <span><ReactMarkdown components={md}>{s}</ReactMarkdown></span>
               </li>
             ))}
           </ul>
@@ -60,7 +81,7 @@ function InterPresureSuggestions({ obs }) {
             {obs.weaknesses.map((s, i) => (
               <li key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
                 <span className="text-red-400 mt-0.5 flex-shrink-0">✗</span>
-                <ReactMarkdown components={md}>{s}</ReactMarkdown>
+                <span><ReactMarkdown components={md}>{s}</ReactMarkdown></span>
               </li>
             ))}
           </ul>
@@ -73,11 +94,169 @@ function InterPresureSuggestions({ obs }) {
             {obs.suggestions.map((s, i) => (
               <li key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
                 <span className="text-blue-400 mt-0.5 flex-shrink-0">→</span>
-                <ReactMarkdown components={md}>{s}</ReactMarkdown>
+                <span><ReactMarkdown components={md}>{s}</ReactMarkdown></span>
               </li>
             ))}
           </ul>
         </section>
+      )}
+
+      {/* ── Details toggle ── */}
+      {hasDetails && (
+        <div>
+          <button
+            onClick={() => setShowDetails((v) => !v)}
+            className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            {showDetails ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            {showDetails ? 'Hide details' : 'Show details'}
+          </button>
+
+          {showDetails && (
+            <div className="mt-3 space-y-3 border-t border-gray-100 pt-3">
+
+              {/* Score + confidence */}
+              {(obs.score != null || obs.confidence != null) && (
+                <div className="space-y-1.5">
+                  {obs.score != null && (
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">Score</span>
+                      <ScoreBar score={obs.score} />
+                    </div>
+                  )}
+                  {obs.confidence != null && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">Confidence</span>
+                      <span className="text-xs text-gray-600 font-medium">{obs.confidence}%</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Resources */}
+              {obs.resources?.length > 0 && (
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">Resources</span>
+                  <div className="flex flex-wrap gap-1">
+                    {obs.resources.map((r) => (
+                      <span key={r} className="text-[10px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 font-medium border border-gray-200">{r}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Verses to review */}
+              {obs.verses_to_review?.length > 0 && (
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">Verses to Review</span>
+                  <div className="flex flex-wrap gap-1">
+                    {obs.verses_to_review.map((v) => (
+                      <span key={v} className="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 font-bold border border-amber-200">{v}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Cross-references */}
+              {obs.cross_references?.length > 0 && (
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">Cross-references</span>
+                  <div className="flex flex-wrap gap-1">
+                    {obs.cross_references.map((ref) => (
+                      <span key={ref} className="text-xs px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 font-medium border border-indigo-100">{ref}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Reasoning */}
+              {obs.reasoning && (
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">Reasoning</span>
+                  <div className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none">
+                    <ReactMarkdown components={md}>{obs.reasoning}</ReactMarkdown>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function InterPresureQA({ obs }) {
+  const [showReasoning, setShowReasoning] = useState(false);
+
+  const resultBadge = {
+    pass: 'bg-green-50 text-green-700 border-green-200',
+    fail: 'bg-red-50 text-red-700 border-red-200',
+    na:   'bg-amber-50 text-amber-700 border-amber-200',
+  }[obs.result] ?? 'bg-gray-100 text-gray-600 border-gray-200';
+
+  const resultLabel = { pass: 'Pass', fail: 'Fail', na: 'Needs Review' }[obs.result] ?? obs.result;
+
+  return (
+    <div className="space-y-4">
+      {/* Question */}
+      <div>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">Question</span>
+        <p className="text-sm text-gray-800 leading-relaxed italic">"{obs.question}"</p>
+      </div>
+
+      {/* Answer */}
+      <div>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block mb-1">Answer</span>
+        <div className="text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none">
+          <ReactMarkdown components={md}>{obs.answer}</ReactMarkdown>
+        </div>
+      </div>
+
+      {/* Verdict row */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${resultBadge}`}>
+          {resultLabel}
+        </span>
+        {obs.result !== 'pass' && (
+          <span className="flex items-center gap-1.5 text-xs text-gray-500">
+            <span className="font-medium text-gray-700">Severity</span>
+            <span className={`font-bold ${obs.severity >= 7 ? 'text-red-600' : obs.severity >= 4 ? 'text-amber-600' : 'text-gray-600'}`}>
+              {obs.severity}/10
+            </span>
+          </span>
+        )}
+        <span className="flex items-center gap-1.5 text-xs text-gray-500">
+          <span className="font-medium text-gray-700">Confidence</span>
+          <span className="font-bold text-gray-600">{obs.confidence}%</span>
+        </span>
+        <span className="text-[10px] px-2 py-0.5 rounded bg-gray-100 text-gray-500 border border-gray-200 font-medium">
+          {obs.model}
+        </span>
+      </div>
+
+      {/* Severity bar — only for fail / na */}
+      {obs.result !== 'pass' && (
+        <ScoreBar score={obs.severity} />
+      )}
+
+      {/* Reasoning toggle */}
+      {obs.reasoning && (
+        <div>
+          <button
+            onClick={() => setShowReasoning((v) => !v)}
+            className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            {showReasoning ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            {showReasoning ? 'Hide reasoning' : 'Show reasoning'}
+          </button>
+          {showReasoning && (
+            <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm text-gray-700 leading-relaxed prose prose-sm max-w-none">
+              <ReactMarkdown components={md}>{obs.reasoning}</ReactMarkdown>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
@@ -108,6 +287,16 @@ function ObservationCard({ item }) {
           </span>
           <span className="text-sm font-medium text-gray-700">{item.type}</span>
           <span className="text-xs text-gray-400">v{item.version}</span>
+          {obs.result != null && (
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${{ pass: 'bg-green-50 text-green-700 border-green-200', fail: 'bg-red-50 text-red-700 border-red-200', na: 'bg-amber-50 text-amber-700 border-amber-200' }[obs.result] ?? 'bg-gray-100 text-gray-600 border-gray-200'}`}>
+              {{ pass: 'Pass', fail: 'Fail', na: 'N/A' }[obs.result] ?? obs.result}
+            </span>
+          )}
+          {obs.score != null && (
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${obs.score >= 8 ? 'bg-green-50 text-green-700 border-green-200' : obs.score >= 6 ? 'bg-yellow-50 text-yellow-700 border-yellow-200' : obs.score >= 4 ? 'bg-orange-50 text-orange-700 border-orange-200' : 'bg-red-50 text-red-700 border-red-200'}`}>
+              {obs.score}/10
+            </span>
+          )}
         </div>
         {open ? <ChevronUp size={16} className="text-gray-400 flex-shrink-0" /> : <ChevronDown size={16} className="text-gray-400 flex-shrink-0" />}
       </button>
@@ -115,6 +304,8 @@ function ObservationCard({ item }) {
         <div className="p-4 border-t border-gray-100">
           {item.type === 'interpresure_suggestions'
             ? <InterPresureSuggestions obs={obs} />
+            : item.type === 'interpresure_qa'
+            ? <InterPresureQA obs={obs} />
             : <GenericObservation obs={obs} />}
         </div>
       )}
@@ -202,47 +393,60 @@ export default function AnalysisViewer() {
     [bookSummary],
   );
 
-  // USFM verses for selected chapter
-  const verses = useMemo(() => {
-    if (!usfm || selectedChapter == null) return [];
-    const chData = usfm[selectedChapter] ?? {};
-    return Object.keys(chData)
-      .map(Number)
-      .sort((a, b) => a - b)
-      .map((v) => ({ vNum: v, text: chData[v] ?? '' }));
-  }, [usfm, selectedChapter]);
+  const allItems = chapterDetail?.items ?? [];
 
-  // Analysis items grouped by verse number (anchor "BOOK C:V" or chapter-level)
-  const itemsByVerse = useMemo(() => {
-    const map = new Map(); // verse number (or 0 for chapter-level) → items[]
-    for (const item of chapterDetail?.items ?? []) {
-      if (item.anchor_level === 'chapter') {
-        const arr = map.get(0) ?? [];
-        arr.push(item);
-        map.set(0, arr);
-      } else {
-        // anchor like "PSA 145:3" — extract verse number
-        const m = item.anchor.match(/:(\d+)$/);
-        const v = m ? parseInt(m[1], 10) : 0;
-        const arr = map.get(v) ?? [];
-        arr.push(item);
-        map.set(v, arr);
+  // Items anchored at chapter or book level
+  const chapterLevelItems = useMemo(
+    () => allItems.filter((i) => i.anchor_level === 'chapter' || i.anchor_level === 'book'),
+    [allItems],
+  );
+
+  // Per-verse item counts, respecting ranges ("ROM 3:1-3" counts for verses 1, 2, 3)
+  const verseItemCounts = useMemo(() => {
+    const counts = new Map();
+    for (const item of allItems) {
+      if (item.anchor_level === 'chapter' || item.anchor_level === 'book') continue;
+      const m = item.anchor?.match(/:(\d+)(?:-(\d+))?$/);
+      if (!m) continue;
+      const start = parseInt(m[1], 10);
+      const end = m[2] ? parseInt(m[2], 10) : start;
+      for (let v = start; v <= end; v++) {
+        counts.set(v, (counts.get(v) ?? 0) + 1);
       }
     }
-    return map;
-  }, [chapterDetail]);
+    return counts;
+  }, [allItems]);
+
+  // USFM verses for selected chapter — fall back to verse numbers from
+  // analysis item anchors when USFM hasn't loaded yet (or is unavailable).
+  const verses = useMemo(() => {
+    if (usfm && selectedChapter != null) {
+      const chData = usfm[selectedChapter] ?? {};
+      if (Object.keys(chData).length > 0) {
+        return Object.keys(chData)
+          .map(Number)
+          .sort((a, b) => a - b)
+          .map((v) => ({ vNum: v, text: chData[v] ?? '' }));
+      }
+    }
+    return [...verseItemCounts.keys()]
+      .sort((a, b) => a - b)
+      .map((v) => ({ vNum: v, text: '' }));
+  }, [usfm, selectedChapter, verseItemCounts]);
 
   // Items shown in detail panel
   const detailItems = useMemo(() => {
-    if (selectedVerse == null) {
-      // Show chapter-level items when no verse selected
-      return itemsByVerse.get(0) ?? [];
-    }
-    return [
-      ...(itemsByVerse.get(0) ?? []),       // chapter-level always visible
-      ...(itemsByVerse.get(selectedVerse) ?? []),
-    ];
-  }, [itemsByVerse, selectedVerse]);
+    if (selectedVerse == null) return chapterLevelItems;
+    // Only verse-level items whose anchor covers the selected verse
+    return allItems.filter((i) => {
+      if (i.anchor_level === 'chapter' || i.anchor_level === 'book') return false;
+      const m = i.anchor?.match(/:(\d+)(?:-(\d+))?$/);
+      if (!m) return false;
+      const start = parseInt(m[1], 10);
+      const end = m[2] ? parseInt(m[2], 10) : start;
+      return selectedVerse >= start && selectedVerse <= end;
+    });
+  }, [allItems, chapterLevelItems, selectedVerse]);
 
   // Resizable sidebar
   const [sidebarWidth, setSidebarWidth] = useState(260);
@@ -398,7 +602,7 @@ export default function AnalysisViewer() {
 
                 <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
                   {/* Chapter-level items indicator */}
-                  {(itemsByVerse.get(0) ?? []).length > 0 && (
+                  {chapterLevelItems.length > 0 && (
                     <button
                       onClick={() => setSelectedVerse(null)}
                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg border transition-colors text-left ${selectedVerse === null ? 'bg-indigo-50 border-indigo-300' : 'border-transparent hover:bg-gray-50 hover:border-gray-200'}`}
@@ -408,19 +612,19 @@ export default function AnalysisViewer() {
                       </span>
                       <span className="text-xs text-gray-600 italic">Chapter-level items</span>
                       <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-bold">
-                        {(itemsByVerse.get(0) ?? []).length}
+                        {chapterLevelItems.length}
                       </span>
                     </button>
                   )}
 
-                  {verses.length === 0 && !usfmLoading && (
+                  {verses.length === 0 && !usfmLoading && !chapterLoading && (
                     <p className="text-xs text-gray-400 italic px-2 py-2">
-                      USFM not available for this commit.
+                      No verses found.
                     </p>
                   )}
 
                   {verses.map(({ vNum, text }) => {
-                    const items = itemsByVerse.get(vNum) ?? [];
+                    const count = verseItemCounts.get(vNum) ?? 0;
                     const active = selectedVerse === vNum;
                     return (
                       <button
@@ -432,11 +636,13 @@ export default function AnalysisViewer() {
                           {vNum}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-gray-700 leading-snug line-clamp-3">{text}</p>
+                          {text
+                            ? <p className="text-sm text-gray-700 leading-snug line-clamp-3">{text}</p>
+                            : <p className="text-sm text-gray-400 italic">verse {vNum}</p>}
                         </div>
-                        {items.length > 0 && (
+                        {count > 0 && (
                           <span className="flex-shrink-0 mt-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold">
-                            {items.length}
+                            {count}
                           </span>
                         )}
                       </button>
@@ -447,7 +653,7 @@ export default function AnalysisViewer() {
 
               {/* Detail panel */}
               <div className="flex-1 bg-gray-50 flex flex-col overflow-hidden">
-                {selectedVerse != null || (itemsByVerse.get(0) ?? []).length > 0 ? (
+                {selectedVerse != null || chapterLevelItems.length > 0 ? (
                   <>
                     {/* Header */}
                     <div className="px-6 py-4 bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
@@ -462,11 +668,12 @@ export default function AnalysisViewer() {
                           </>
                         )}
                       </div>
-                      {selectedVerse != null && verses.find(v => v.vNum === selectedVerse) && (
-                        <p className="text-base text-gray-800 leading-relaxed mt-1 italic">
-                          "{verses.find(v => v.vNum === selectedVerse)?.text}"
-                        </p>
-                      )}
+                      {selectedVerse != null && (() => {
+                        const verseText = verses.find(v => v.vNum === selectedVerse)?.text;
+                        return verseText
+                          ? <p className="text-base text-gray-800 leading-relaxed mt-1 italic">"{verseText}"</p>
+                          : null;
+                      })()}
                     </div>
 
                     {/* Items */}

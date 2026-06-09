@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { parseGiteaUrl, fetchGiteaRootContents, fetchRawFile } from '../api';
+import { parseGiteaUrl, fetchGiteaRootContents, fetchGiteaFileContent } from '../api';
 
 /** Parsed USFM: chapter → verse → verse text */
 export type ParsedUsfm = Record<number, Record<number, string>>;
@@ -87,15 +87,11 @@ export function useUsfm(
             e.name.toUpperCase().endsWith('.USFM') &&
             e.name.toUpperCase().includes(bookUpper),
         );
-        if (!entry?.download_url) return null;
+        if (!entry) return null;
 
-        // download_url may point to a branch ref; swap in the commit SHA
-        // e.g. .../raw/branch/master/... → .../raw/commit/{sha}/...
-        const rawUrl = entry.download_url.replace(
-          /\/raw\/branch\/[^/]+\//,
-          `/raw/commit/${sha}/`,
-        );
-        return fetchRawFile(rawUrl);
+        // Use the Gitea contents API (CORS-safe) rather than the raw download
+        // URL, which is served without CORS headers by most Gitea instances.
+        return fetchGiteaFileContent(info.apiBase, info.owner, info.repo, entry.path, sha);
       })();
       usfmCache.set(cacheKey, pending);
     }

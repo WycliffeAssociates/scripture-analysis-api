@@ -76,10 +76,16 @@ export function AnalysisBar({
     [analyses, commitDates],
   );
 
-  const typeOptions = useMemo(
-    () => analysisTypes.map((t) => ({ value: t.type, label: t.type })),
-    [analysisTypes],
-  );
+  const typeOptions = useMemo(() => {
+    const seen = new Set<string>();
+    return analysisTypes
+      .filter((t) => {
+        if (seen.has(t.type)) return false;
+        seen.add(t.type);
+        return true;
+      })
+      .map((t) => ({ value: t.type, label: t.type }));
+  }, [analysisTypes]);
 
   const analysisOptions = useMemo(() => {
     const filtered = selectedCommit

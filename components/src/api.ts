@@ -122,14 +122,27 @@ export async function fetchGiteaRootContents(
 }
 
 /**
- * Fetch the raw text of a file by its absolute URL.
- * Returns null on any failure.
+ * Fetch the text content of a file via the Gitea contents API.
+ * Uses the API endpoint (CORS-safe) rather than the raw download URL
+ * (which typically lacks CORS headers). Returns null on any failure.
  */
-export async function fetchRawFile(url: string): Promise<string | null> {
+export async function fetchGiteaFileContent(
+  apiBase: string,
+  owner: string,
+  repo: string,
+  path: string,
+  sha: string,
+): Promise<string | null> {
   try {
-    const res = await fetch(url);
+    const res = await fetch(
+      `${apiBase}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${sha}`,
+    );
     if (!res.ok) return null;
-    return await res.text();
+    const data = (await res.json()) as { encoding?: string; content?: string };
+    if (data.encoding === 'base64' && data.content) {
+      return atob(data.content.replace(/\n/g, ''));
+    }
+    return null;
   } catch {
     return null;
   }

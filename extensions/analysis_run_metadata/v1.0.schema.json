@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "scripture-analysis/analysis_run_metadata/1.0",
+  "title": "Analysis Run Metadata",
+  "description": "Pipeline provenance record for an analysis run. One item per scope, recording what models, resources, and modes were used to produce the analysis items for that scope.",
+  "type": "object",
+  "required": ["type", "version", "model", "analysis_mode", "analysis_type", "timestamp", "translation", "biblical_language", "resources"],
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "analysis_run_metadata",
+      "description": "Observation type identifier."
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Schema version."
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Primary model ID used to produce the analysis (e.g. 'gpt-5.4')."
+    },
+    "critic_model": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Model ID used for critic/review pass, if any."
+    },
+    "analysis_mode": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Prompting mode used (e.g. 'few_shot', 'zero_shot', 'chain_of_thought')."
+    },
+    "analysis_type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The analysis type this metadata describes (e.g. 'interpresure_suggestions')."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the analysis was produced."
+    },
+    "translation": {
+      "type": "object",
+      "required": ["language", "title"],
+      "additionalProperties": false,
+      "description": "The translation that was analysed.",
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "BCP 47 language tag (e.g. 'en', 'sw')."
+        },
+        "title": {
+          "type": "string",
+          "description": "Human-readable title of the translation."
+        }
+      }
+    },
+    "biblical_language": {
+      "type": "string",
+      "description": "ISO 639-3 code for the biblical source language consulted (e.g. 'grc' for Greek, 'hbo' for Biblical Hebrew)."
+    },
+    "resources": {
+      "type": "object",
+      "description": "Map of resource name to boolean indicating whether it was used.",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    }
+  }
+}

@@ -143,10 +143,6 @@ Never modify an existing schema file in place once observations reference it.
 
 | Type | Version | Category | Description |
 |---|---|---|---|
-| [`question`](question/README.md) | 1.0 | quality | AI-generated translation questions with optional RAG sourcing |
 | [`interpresure_suggestions`](interpresure_suggestions/README.md) | 1.0 | quality | Strengths, weaknesses, and suggestions from the InterPresure pragmatic annotation system |
-| [`back_translation_consistency`](back_translation_consistency/README.md) | 1.0 | quality | Compares back translation to source text |
-| [`divine_name_inventory`](divine_name_inventory/README.md) | 1.0 | data | Inventories divine names and occurrence counts |
-| [`key_term_accuracy`](key_term_accuracy/README.md) | 1.0 | quality | Checks key term rendering against project glossary |
-| [`project_completeness`](project_completeness/README.md) | 1.0 | completeness | Reports which books are present or missing |
-| [`verse_coverage`](verse_coverage/README.md) | 1.0 | completeness | Reports verse coverage within a chapter |
+| [`interpresure_suggestions`](interpresure_suggestions/README.md) | 2.0 | quality | Extended pragmatic analysis with model/resources tracking, score, confidence, reasoning, and chapter-level verse flags |
+| [`discourse_map`](discourse_map/README.md) | 1.0 | data | Chapter-level discourse framework: QUDs, argument structure, boundaries, relational dynamics |
