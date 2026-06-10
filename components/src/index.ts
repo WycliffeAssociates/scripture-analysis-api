@@ -14,6 +14,9 @@ export type {
   ChapterDetail,
 } from './types';
 
+export { useRepos, orgFromGitUrl } from './hooks/useRepos';
+export { useAnalyses } from './hooks/useAnalyses';
+export { useAnalysisTypes } from './hooks/useAnalysisTypes';
 export { useProjectSummary } from './hooks/useProjectSummary';
 export { useBookSummary } from './hooks/useBookSummary';
 export { useChapterDetail } from './hooks/useChapterDetail';
