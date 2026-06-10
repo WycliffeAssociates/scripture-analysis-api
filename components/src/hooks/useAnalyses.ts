@@ -2,7 +2,13 @@ import { useState, useEffect } from 'react';
 import { fetchAnalyses } from '../api';
 import type { Analysis } from '../types';
 
-export function useAnalyses(apiUrl: string, repoId: string | null) {
+export function useAnalyses(
+  apiUrl: string,
+  repoId: string | null,
+  type?: string | null,
+  book?: string | null,
+  chapter?: number | null,
+) {
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -14,11 +20,11 @@ export function useAnalyses(apiUrl: string, repoId: string | null) {
     }
     setLoading(true);
     setError(null);
-    fetchAnalyses(apiUrl, repoId)
+    fetchAnalyses(apiUrl, repoId, type, book, chapter)
       .then((data) => setAnalyses(data.analyses))
       .catch((err: unknown) => setError((err as Error).message))
       .finally(() => setLoading(false));
-  }, [apiUrl, repoId]);
+  }, [apiUrl, repoId, type, book, chapter]);
 
   return { analyses, loading, error };
 }

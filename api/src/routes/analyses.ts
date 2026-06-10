@@ -33,7 +33,7 @@ analyses.post('/', requireApiKey, async (c) => {
 
 // GET /analyses
 analyses.get('/', async (c) => {
-  const { repo_id, status, commit_sha, from, to, page = '1', limit = '50' } = c.req.query();
+  const { repo_id, status, commit_sha, type, book, chapter, from, to, page = '1', limit = '50' } = c.req.query();
 
   if (!repo_id) return c.json({ error: 'repo_id query parameter is required' }, 400);
 
@@ -48,6 +48,17 @@ analyses.get('/', async (c) => {
   if (commit_sha) { conditions.push('commit_sha = ?');    bindings.push(commit_sha); }
   if (from)       { conditions.push('triggered_at >= ?'); bindings.push(from); }
   if (to)         { conditions.push('triggered_at <= ?'); bindings.push(to); }
+
+  // Filter to analyses that contain items matching type/book/chapter
+  const itemFilters: string[] = [];
+  const itemBindings: (string | number)[] = [];
+  if (type)    { itemFilters.push('type = ?');    itemBindings.push(type); }
+  if (book)    { itemFilters.push('book = ?');    itemBindings.push(book); }
+  if (chapter) { itemFilters.push('chapter = ?'); itemBindings.push(parseInt(chapter, 10)); }
+  if (itemFilters.length > 0) {
+    conditions.push(`analysis_id IN (SELECT DISTINCT analysis_id FROM analysis_item WHERE ${itemFilters.join(' AND ')})`);
+    bindings.push(...itemBindings);
+  }
 
   const where = conditions.join(' AND ');
 

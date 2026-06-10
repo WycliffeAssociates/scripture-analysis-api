@@ -57,8 +57,15 @@ export function fetchAnalysisTypes(apiUrl: string): Promise<{ analysis_types: An
 export function fetchAnalyses(
   apiUrl: string,
   repoId: string,
+  type?: string | null,
+  book?: string | null,
+  chapter?: number | null,
 ): Promise<{ analyses: Analysis[]; total: number }> {
-  return get(`${apiUrl}/analyses?repo_id=${encodeURIComponent(repoId)}&limit=100`);
+  const params = new URLSearchParams({ repo_id: repoId, limit: '100' });
+  if (type)           params.set('type', type);
+  if (book)           params.set('book', book);
+  if (chapter != null) params.set('chapter', String(chapter));
+  return get(`${apiUrl}/analyses?${params}`);
 }
 
 export function fetchProjectSummary(

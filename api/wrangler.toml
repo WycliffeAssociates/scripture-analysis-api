@@ -5,9 +5,9 @@ compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding = "DB"
-database_name = "scripture-analysis"
+database_name = "ai-scripture-analysis"
 # Replace with your actual database_id after running: wrangler d1 create scripture-analysis
-database_id = "replace-with-your-database-id"
+database_id = "08e8fc42-c4a9-4630-a090-01088e493c72"
 migrations_dir = "migrations"
 
 [vars]
