@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/interpresure_scripture_analysis/",
+  base: "/scripture-analysis-api/",
   server: {
     port: 3006,
   },
@@ -14,6 +14,7 @@ export default defineConfig({
       // Point to source so Tailwind v4 auto-scanning picks up AnalysisBar classes
       '@scripture-analysis/components': resolve(__dirname, '../components/src/index.ts'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   plugins: [
     tailwindcss(),

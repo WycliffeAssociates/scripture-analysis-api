@@ -147,7 +147,9 @@ export async function fetchGiteaFileContent(
     if (!res.ok) return null;
     const data = (await res.json()) as { encoding?: string; content?: string };
     if (data.encoding === 'base64' && data.content) {
-      return atob(data.content.replace(/\n/g, ''));
+      const binary = atob(data.content.replace(/\n/g, ''));
+      const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+      return new TextDecoder('utf-8').decode(bytes);
     }
     return null;
   } catch {

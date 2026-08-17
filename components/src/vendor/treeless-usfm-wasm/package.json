@@ -1,0 +1,17 @@
+{
+  "name": "treeless-usfm-wasm",
+  "type": "module",
+  "description": "WebAssembly bindings for treeless-usfm",
+  "version": "0.1.0",
+  "license": "MIT OR Apache-2.0",
+  "files": [
+    "treeless_usfm_wasm_bg.wasm",
+    "treeless_usfm_wasm.js",
+    "treeless_usfm_wasm.d.ts"
+  ],
+  "main": "treeless_usfm_wasm.js",
+  "types": "treeless_usfm_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

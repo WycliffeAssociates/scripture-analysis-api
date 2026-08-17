@@ -3,7 +3,7 @@ export type AnalysisStatus = 'pending' | 'in_progress' | 'completed' | 'partial'
 
 export interface Env {
   DB: D1Database;
-  API_KEY: string;
+  AI_SCRIPTURE_ANALYSIS_API_KEY: string;
 }
 
 // ── Database row shapes ───────────────────────────────────────────────────

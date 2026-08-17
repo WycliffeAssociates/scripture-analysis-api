@@ -6,7 +6,7 @@ export const requireApiKey: MiddlewareHandler<{ Bindings: Env }> = async (c, nex
   if (!header?.startsWith('Bearer ')) {
     return c.json({ error: 'Missing Authorization header' }, 401);
   }
-  if (header.slice(7) !== c.env.API_KEY) {
+  if (header.slice(7) !== c.env.AI_SCRIPTURE_ANALYSIS_API_KEY) {
     return c.json({ error: 'Invalid API key' }, 403);
   }
   return next();

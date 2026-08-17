@@ -17,6 +17,7 @@
   "files": ["dist"],
   "scripts": {
     "dev": "vite",
+    "wasm": "wasm-pack build ../../treeless-usfm/wasm --target web --release --out-dir \"$(pwd)/src/vendor/treeless-usfm-wasm\" && rm -f src/vendor/treeless-usfm-wasm/.gitignore",
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit"
   },

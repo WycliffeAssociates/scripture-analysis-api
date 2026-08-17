@@ -20,5 +20,5 @@ export { useAnalysisTypes } from './hooks/useAnalysisTypes';
 export { useProjectSummary } from './hooks/useProjectSummary';
 export { useBookSummary } from './hooks/useBookSummary';
 export { useChapterDetail } from './hooks/useChapterDetail';
-export { useUsfm, parseUsfm } from './hooks/useUsfm';
+export { useUsfm, parseUsfm, initUsfmParser } from './hooks/useUsfm';
 export type { ParsedUsfm } from './hooks/useUsfm';

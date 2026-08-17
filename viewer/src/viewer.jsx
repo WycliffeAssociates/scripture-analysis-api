@@ -12,7 +12,7 @@ import { useBookSummary } from '@scripture-analysis/components';
 import { useChapterDetail } from '@scripture-analysis/components';
 import { useUsfm } from '@scripture-analysis/components';
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8787';
+const API_URL = import.meta.env.VITE_API_URL; //?? 'http://localhost:8787';
 
 // ── Markdown ──────────────────────────────────────────────────────────────────
 

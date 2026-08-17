@@ -13,7 +13,7 @@ migrations_dir = "migrations"
 [vars]
 ENVIRONMENT = "development"
 
-# API_KEY is a secret — set it with:
-#   wrangler secret put API_KEY
+# AI_SCRIPTURE_ANALYSIS_API_KEY is a secret — set it with:
+#   wrangler secret put AI_SCRIPTURE_ANALYSIS_API_KEY
 # For local dev, add to .dev.vars:
-#   API_KEY=your-local-key
+#   AI_SCRIPTURE_ANALYSIS_API_KEY=your-local-key
