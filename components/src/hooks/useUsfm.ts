@@ -12,6 +12,7 @@ export type ParsedUsfm = Record<number, Record<number, string>>;
  */
 const usfmCache = new Map<string, Promise<string | null>>();
 
+
 /** One text run plus the marker state it was emitted under (treeless-usfm). */
 interface Segment {
   text: string;
