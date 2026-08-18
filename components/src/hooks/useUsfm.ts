@@ -28,11 +28,16 @@ interface Segment {
 }
 
 /**
- * Block markers that are not scripture body text. Levels are already stripped
- * by the parser, so `\s1` arrives as `s` and `\toc1` as `toc`. Everything here
- * is skipped: headings and titles sit *between* verses, and the parser keeps
- * the previous `\v` in scope, so without this they would be appended to the
- * preceding verse.
+ * Block markers whose *own* text is not scripture body text. Levels are already
+ * stripped by the parser, so `\s1` arrives as `s` and `\toc1` as `toc`.
+ *
+ * These are skipped because headings and titles sit *between* verses while the
+ * parser keeps the previous `\v` in scope — without this they would be appended
+ * to the preceding verse. The skip only covers text carried over from before the
+ * block opened: see `parseUsfm`, where a `\v` inside the block turns body text
+ * back on. That distinction matters for `\s5` chunk markers, which divide the
+ * text without a following `\p` and would otherwise swallow every verse after
+ * the first chunk.
  */
 const NON_BODY_BLOCKS = new Set([
   'id', 'ide', 'usfm', 'h', 'toc', 'toca', 'rem', 'sts', 'c',
@@ -92,11 +97,25 @@ export async function parseUsfm(text: string): Promise<ParsedUsfm> {
   // spacing at character-style boundaries survives until the final normalise.
   const parts = new Map<string, { chapter: number; verse: string; texts: string[] }>();
 
+  // Set while inside a non-body block, holding the verse that was in scope when
+  // the block opened. Text is skipped only while the verse is still that one —
+  // a `\v` opening inside the block (as after `\s5`) is real body text.
+  let headingCarryVerse: string | null = null;
+  let prevBlock: string | null = null;
+
   for (const seg of segments) {
     const { chapter, verse, note, paragraph, character_stack } = seg.state;
+
+    const block = paragraph ? `${paragraph.marker}${paragraph.level ?? ''}` : null;
+    if (block !== prevBlock) {
+      prevBlock = block;
+      headingCarryVerse =
+        paragraph && NON_BODY_BLOCKS.has(paragraph.marker) ? (verse ?? null) : null;
+    }
+
     if (chapter === undefined || verse === undefined) continue;
     if (note) continue;
-    if (paragraph && NON_BODY_BLOCKS.has(paragraph.marker)) continue;
+    if (headingCarryVerse !== null && verse === headingCarryVerse) continue;
 
     const txt = stripAttrSyntax(seg.text, character_stack.length > 0);
     if (!txt) continue;
